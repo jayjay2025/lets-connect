@@ -1,4 +1,5 @@
 const express = require('express');
+const nodemailer = require('nodemailer');
 const { Pool } = require('pg');
 const session = require('express-session');
 const path = require('path');
