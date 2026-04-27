@@ -1,0 +1,305 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, intial-scale=1.0">
+        <title>Let's Connect | Campus Clubs</title>
+        <link rel="stylesheet" href="/css/style.css"> <style>
+            body { font-family: 'Segoe UI', sans-serif; background-color: #f4f4f9; margin: 0; padding: 0; }
+            header { background: #bf0028; color: white; padding: 20px; text-align: center; }
+            .container { max-width: 800px; margin: 20px auto; padding: 20px; }
+            .club-card { 
+                background: white; 
+                padding: 20px; 
+                margin-bottom: 20px; 
+                border-radius: 10px; 
+                box-shadow: 0 4px 6px rgba(0,0,0,0.1); 
+                border-left: 5px solid #bf0028;
+            }
+
+            .club-card.priority-card {
+                border-left: 8px solid #28a745;
+            }
+            .category-badge { 
+                background: #eee; 
+                padding: 5px 10px; 
+                border-radius: 15px; 
+                font-size: 0.8em; 
+                color: #555; 
+            }
+            .nav-links { margin-top: 10px; }
+            .nav-links a { color: white; margin: 0 10px; text-decoration: none; font-weight: bold; }
+
+            .post-actions { margin-top: 15px; display: flex; gap: 10px; align-items: center; }
+            .like-btn {
+                background: #fff; border: 1px solid #ddd; padding: 8px 15px;
+                border-radius: 5px; cursor: pointer; transition: 0.2s;
+            }
+            .like-btn:hover { background: #f0f0f0; }
+            .connect-btn {
+                background: #bf0028; color: white; border: none; padding: 8px 15px;
+                border-radius: 5px; cursor: pointer; transition: 0.3s;
+            }
+            .connect-btn.connected {
+                background: #28a745;
+                cursor: pointer;
+                pointer-events: auto;
+            }
+
+            .comment-section { background: #f9f9f9; padding: 15px; border-radius: 8px; margin-top: 15px; }
+            .comment-item { border-bottom: 1px solid #ddd; padding: 8px 0; font-size: 0.9rem; }
+            .comment-item:last-child { border-bottom: none; }
+            .comment-input-group { display: flex; gap: 10px; margin-top: 10px; }
+            .comment-input-group input { flex: 1; padding: 8px; border-radius: 5px; border: 1px solid #ddd; }
+            
+            .pill {
+                white-space: nowrap;
+                padding: 8px 20px;
+                border-radius: 20px;
+                border: 1px solid #ddd;
+                background: white;
+                color: #555;
+                cursor: pointer;
+                transition: 0.3s;
+                font-weight: 600;
+            }
+
+            .pill.active {
+                background: #bf0028; /* Jag Red */
+                color: white;
+                border-color: #bf0028;
+            }
+
+            .pill:hover:not(.active) {
+                background: #f0f0f0;
+            }
+            .category-pills::-webkit-scrollbar { display: none; }
+            .category-pills { -ms-overflow-style: none; scrollbar-width: none; }
+            
+            
+        </style>
+    </head>
+    <body>
+        <header>
+            <h1>Discover What's Happening on Campus</h1>
+            <div class="nav-links">
+                <% if (user) { %>
+                    <span style="color: white; margin-right: 15px;">Welcome, <%= user.full_name %></span>
+                    <a href="/logout">Logout</a>
+                    <% if (user.user_role === 'club_admin') { %>
+                        <a href="/club/dashboard">My Dashboard</a>
+                    <% } %>
+                <% } else { %>
+                    <a href="/login.html">Login</a>
+                    <a href="/signup.html">Register a Club</a>
+                <% } %>
+            </div>
+        </header>
+        <div class="container">
+            <div class="filter-wrapper" style="margin-bottom: 25px;">
+                <input type="text" id="feedSearch" placeholder="Search for clubs, events, or keywords..."
+                    onkeyup="runFilters()"
+                    style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid #ddd; margin-bottom: 15px; font-size: 1rem;">
+                <div class="category-pills" style="display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px;">
+                    <button class="pill active" onclick="setCategory('All', this)">All</button>
+                    <button class="pill" onclick="setCategory('Academic', this)">Academic</button>
+                    <button class="pill" onclick="setCategory('Sports', this)">Sports/Esports</button>
+                    <button class="pill" onclick="setCategory('Arts', this)">Arts & Music</button>
+                    <button class="pill" onclick="setCategory('Social', this)">Social/Service</button>
+                </div>
+            </div>
+            <h2>Recent Updates</h2>
+
+            <% if (posts.length > 0) { %>
+                <% posts.forEach(post => { %>
+                    <div class="post-wrapper" data-category="<%= post.category %>">
+                        <div class="club-card">
+                            <span class="category-badge"><%= post.category %></span>
+                            <h3><%= post.club_name %></h3>
+                            <p><%= post.content %></p>
+
+                            <% if(post.image_url) { %>
+                                <img src="<%= post.image_url %>" style="width:100%; border-radius: 10px; margin: 10px 0;">
+                            <% } %>
+                            <div class="post-actions">
+                                <button class="like-btn" onclick="toggleLike('<%= post.post_id %>', this)">
+                                    <%= post.like_count || 0 %> ❤️
+                                </button>
+                        
+                                <button 
+                                    id="connect-btn-<%= post.club_id %>"
+                                    class="connect-btn <%= post.is_connected ? 'connected' : '' %>"
+                                    onclick="connectToClub('<%= post.club_id %>')">
+                                    <%= post.is_connected ? 'Connected ✓' : 'Connect' %>
+                                </button>
+
+                                <% if (user && (user.id === post.admin_id || user.user_role === 'club_admin')) { %>
+                                    <button class="mod-delete-btn" onclick="deletePost('<%= post.post_id %>')">
+                                        Delete Post
+                                    </button>
+                                <% } %>
+                            </div> 
+
+                            <div class="comment-section">
+                                <strong>Comments</strong>
+                                <div id="comments-list-<%= post.post_id %>">
+                                    <% comments.filter(c => c.post_id === post.post_id) .forEach(comment => { %>
+                                        <div class="comment-item">
+                                            <strong><%= comment.full_name %>:</strong> <%= comment.content %>
+                                        </div>
+                                    <% }); %>
+                                </div>
+
+                                <% if (user) { %>
+                                    <div class="comment-input-group">
+                                        <input type="text" id="comment-input-<%= post.post_id %>" placeholder="Add a comment...">
+                                        <button onclick="addComment('<%= post.post_id %>')" class="connect-btn">Post</button>
+                                    </div>
+                                <% } %>
+                            </div>
+
+                            <br><small>Posted on: <%= new Date(post.created_at).toLocaleDateString() %></small>
+                        </div>
+                    </div>
+                <% }); %>
+            <% } else { %>
+                <div class="club-card">
+                    <p>No updates yet! Check back soon for club news.</p>
+                </div>
+             <% } %>
+        </div>
+
+        <script>
+
+            let selectedCategory = 'All';
+
+            function setCategory(category, button) {
+                document.querySelectorAll('.pill').forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+                selectedCategory = category;
+                runFilters();
+            }
+
+            function runFilters() {
+                const searchInput = document.getElementById('feedSearch').value.toLowerCase();
+                const posts = document.querySelectorAll('.post-wrapper');
+
+                posts.forEach(post => {
+                    const postCategory = post.getAttribute('data-category');
+                    const postText = post.innerText.toLowerCase();
+
+                    const matchesCategory = (selectedCategory === 'All' || postCategory === selectedCategory);
+                    const matchesSearch = postText.includes(searchInput);
+
+                    if (matchesCategory && matchesSearch) {
+                        post.style.display = "block";
+                    } else {
+                        post.style.display = "none";
+                    }
+                });
+            }
+            async function addComment(postId) {
+                const input = document.getElementById(`comment-input-${postId}`);
+                const content = input.value;
+                if (!content) return;
+
+                const response = await fetch(`/post/comment/${postId}`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ content })
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    location.reload();
+                }
+            }
+
+            async function deletePost(postId) {
+                if (!confirm("Are you sure you want to remove this post?")) return;
+
+                const response = await fetch(`/club/post/delete/${postId}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                if (result.success) {
+                    alert("Post deleted successfully.");
+                    location.reload();
+                } else {
+                    alert("You don't have permission to delete this.");
+                }
+            }
+
+            async function toggleLike(postId, button) {
+                try {
+                    const response = await fetch(`/post/like/${postId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.status === 401) {
+                        alert("Please log in to like posts");
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        let currentText = button.innerText;
+                        let count = parseInt(currentText.split(' ')[0]);
+
+                        if (result.liked) {
+                            button.innerText = `${count + 1} ❤️`;
+                            button.style.color = "red";
+                            button.style.borderColor = "red";
+                        } else {
+                            button.innerText = `${count - 1} ❤️`;
+                            button.style.color = "black";
+                            button.style.borderColor = "#ddd";
+                        }
+                    }
+                } catch (err) {
+                    console.error("Like error:", err);
+                }
+            }
+
+            async function connectToClub(clubId) {
+                const btn = document.getElementById(`connect-btn-${clubId}`);
+                const isConnected = btn.classList.contains('connected');
+
+                const endpoint = isConnected ? `/club/unconnect/${clubId}` : `/club/connect/${clubId}`;
+
+                try {
+                    const response = await fetch(`/club/connect/${clubId}`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+
+                    if (response.status === 401) {
+                        alert("Please log in as a student to connect with this club!");
+                        return;
+                    }
+
+                    const result = await response.json();
+
+                    if (result.success) {
+                        if (isConnected) {
+                            btn.classList.remove('connected');
+                            btn.innerText = 'Connect';
+                        } else {
+                            btn.classList.add('connected');
+                            btn.innerText = 'Connected ✓';
+                            alert(result.message);
+                        }
+                    } else {
+                        alert(result.message);
+                    }
+                } catch (err) {
+                    console.error("Connection error:", err);
+                    alert("Make sure you are logged in to connect!");
+                }
+            }
+        </script>
+    </body>
+</html>

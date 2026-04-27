@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Admin Dashboard - Jags Connect</title>
+        <link rel="stylesheet" href="/styles/main.css">
+    </head>
+    <body class="admin-body">
+        <nav class="sidebar">
+            <div class="sidebar-header">
+                <h3>Jags Connect</h3>
+                <p id="admin-name">Loading...</p>
+            </div>
+            <ul>
+                <li><a href="#" class="active">Manage Posts</a></li>
+                <li><a href="./Student Identity/club-settings.html">Club Settings</a></li>
+                <li><a href="login.html" id="logoutBtn">Logout</a></li>
+            </ul>
+        </nav>
+
+        <main class="dashboard-content">
+            <header>
+                <h1>Club Admin Dashboard</h1>
+                <button id="openPostModal" class="btn-primary">+ New Post</button>
+            </header>
+
+            <section class="stats-grid">
+                <div class="stat-card">
+                    <h3>Total Posts</h3>
+                    <p id="post-count">0</p>
+                </div>
+                <div class="stat-card">
+                    <h3>Club</h3>
+                    <p id="club-name">South Alabama Esports</p>
+                </div>
+            </section>
+
+            <section class="posts-management">
+                <h2>Your Recent Posts</h2>
+                <table id="postsTable">
+                    <thead>
+                        <tr>
+                            <th>Title</th>
+                            <th>Date</th>
+                            <th>Location</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </section>
+        </main>
+
+        <div id="postModal" class="modal">
+            <div class="modal-content">
+                <span class="close" id="close">&times;</span>
+                <h2>Create New Event Post</h2>
+                
+                <form id="createPostForm" enctype="multipart/form-data"> <label>Title</label>
+                    <input type="text" id="postTitle" placeholder="e.g., Smash Bros Tournament" required> 
+
+                    <label>Location</label>
+                    <input type="text" id="postLocation" placeholder="e.g., Student Center Room 211" required>
+
+                    <label>Event Date & Time</label>
+                    <input type="datetime-local" id="postDate" required>
+
+                    <label>Event Photo</label>
+                    <input type="file" id="postImageFile" name="event_image" accept="image/*" required>
+
+                    <div class="image-preview-wrapper">
+                        <img id="imagePreview" src="" alt="Image Preview">
+                    </div>
+
+                    <label>Description</label>
+                    <textarea id="postContent" rows="4" placeholder="Tell the Jags about your event..." required></textarea>
+
+                    <button type="submit" class="btn-primary">Publish Post</button>
+                </form>
+            </div>
+        </div>
+
+        <script src="/js_files/admin.js"></script>
+    </body>
+</html>

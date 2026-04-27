@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Sign Up | Let's Connect</title>
+        <link rel="stylesheet" href="/styles/main.css">
+        <style>
+            :root { --jag-red: #bf0028; --jag-blue: #00205b; }
+            body { font-family: 'Segie UI', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
+            .signup-container { background: white; padding: 40px; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); width: 100%; max-width: 500px; }
+            h2 { color: var(--jag-blue); text-align: center; margin-bottom: 10px; }
+            .toggle-box { display: flex; justify-content: center; gap: 20px; margin-bottom: 25px; }
+            .hidden { display: none; }
+            .form-group { margin-bottom: 15px; }
+            label { display: block; margin-bottom: 5px; font-weight: bold; color: #333; }
+            input[type="text"], input[type="email"], input[type="password"], textarea { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; }
+            .admin-notice { background-color: #fff3cd; color: #856404; padding: 10px; border-radius: 5px; font-size: 0.85rem; margin-bottom: 15px; border: 1px solid #ffeeba; }
+            .submit-btn { width: 100%; padding: 12px; background-color: var(--jag-red); color: white; border: none; border-radius: 5px; font-size: 1rem; cursor: pointer; transition: background 0.3s; }
+            .submit-btn:hover { background-color: #8e001e; }
+        </style>
+    </head>
+    <body>
+        <div class="signup-container">
+            <h2>Create Your Profile</h2>
+
+            <div class="toggle-box">
+                <label><input type="radio" name="userRole" class="role-toggle" value="student" checked onclick="toggleRole()"> Student</label>
+                <label><input type="radio" name="userRole" class="role-toggle" value="admin" onclick="toggleRole()"> Club Admin</label>
+            </div>
+
+            <form action="http://localhost:3000/signup" method="POST">
+                <input type="hidden" name="role" id="role-hidden" value="student">
+
+                <div class="form-group">
+                    <label>JagMail Address</label>
+                    <input type="email" name="email" placeholder="user@jagmail.southalabama.edu" required>
+                </div>
+
+                <div class="form-group">
+                    <label>Full Name</label>
+                    <input type="text" name="fullName" placeholder="John Doe" required>
+                </div>
+                
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" required>
+                </div>
+
+                <div id="admin-fields" class="hidden">
+                    <div class="admin-notice">
+                        <strong>Note:</strong> Admin accounts are requests. The app creator will review your details and notify you via email upon approval.
+                    </div>
+
+                    <div class="form-group">
+                        <label>Name of Organization</label>
+                        <input type="text" name="clubName" placeholder="e.g., South Alabama Esports">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Club Category</label>
+                        <select name="category" style="width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 5px;">
+                            <option value="">Select a Category</option>
+                            <option value="Academic">Academic</option>
+                            <option value="Sports">Sports/Esports</option>
+                            <option value="Arts">Arts & Music</option>
+                            <option value="Social">Social/Service</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Organization Description</label>
+                        <textarea name="description" rows="3" placeholder="Briefly describe your club..."></textarea>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Faculty Sponsor</label>
+                        <input type="text" name="sponsor" placeholder="Full name of Faculty Advisor">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Moderator/President Name</label>
+                        <input type="text" name="moderator" placeholder="Full name of current student leader">
+                    </div>
+                </div>
+
+                <button type="submit" class="submit-btn">Create Profile</button>
+            </form>
+        </div>
+
+        <script>
+            function toggleRole() {
+                const adminFields = document.getElementById('admin-fields');
+                const roleHidden = document.getElementById('role-hidden');
+                const selectedRole = document.querySelector('input[name="userRole"]:checked').value;
+
+
+                if (selectedRole === 'admin') {
+                    roleHidden.value = 'club_admin';
+                    adminFields.classList.remove('hidden');
+
+                    adminFields.querySelectorAll('input, select, textarea').forEach(input => {
+                        if (input.name === 'clubName' || input.name === 'sponsor') {
+                            input.required = true;
+                        }
+                    });
+                } else {
+                    roleHidden.value = 'student';
+                    adminFields.classList.add('hidden');
+
+                    adminFields.querySelectorAll('input, select, textarea').forEach(input => {
+                        input.required = false;
+                    });
+                }
+            }
+        </script>
+    </body>
+</html>
