@@ -182,7 +182,7 @@ app.post('/admin/approve/:id', checkSuperAdmin, async (req,res) => {
                     <p>Your club <strong>${clubName}</strong> has been approved by the Super Admin.</p>
                     <p>You can now log in to your dashboard to share updates with students.</p>
                     <br>
-                    <a href="http://localhost:3000/login.html"
+                    <a href="/login.html"
                         style="background: #bf0028; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; display: inline-block;">
                         Login to Dashboard
                     </a>
