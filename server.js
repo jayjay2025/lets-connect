@@ -251,7 +251,7 @@ app.get('/', async (req, res) => {
             [posts] = await db.execute(`
                 SELECT p.*, c.club_name, c.category, c.admin_id,
                 (SELECT COUNT(*) FROM post_likes WHERE post_id = p.post_id) AS like_count,
-                IF(m.user_id IS NOT NULL, 1, 0) AS is_connected
+                CASE WHEN m.user_id IS NOT NULL THEN 1 ELSE 0 END AS is_connected
                 FROM posts p
                 JOIN clubs c ON p.club_id = c.club_id
                 LEFT JOIN memberships m ON p.club_id = m.club_id AND m.user_id = ?
