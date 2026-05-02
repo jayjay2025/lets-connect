@@ -36,7 +36,7 @@ const signup = async (req, res) => {
             [fullName || "Unknown", email, password, role]
         );
 
-        const userId = rows[0].user_id;
+        const userId = rows[0]?.user_id;
 
         if (role === 'club_admin') {
             await db.execute(
@@ -136,8 +136,7 @@ const checkSuperAdmin = (req, res, next) => {
 
 // --- Routes --
 
-// Signup (authController.js)
-app.post('/signup', signup);
+app.post('/register', signup);
 app.post('/login', login);
 
 // Super Admin Dashboard (EJS)
