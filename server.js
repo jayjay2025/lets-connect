@@ -243,6 +243,11 @@ app.post('/admin/deny/:id', checkSuperAdmin, async (req, res) => {
 
 // Home Feed
 app.get('/', async (req, res) => {
+
+    if (!req.session.user) {
+        return res.redirect('/login.html');
+    }
+    
     try{
         const userId = req.session.user ? req.session.user.id : null;
         let posts;
