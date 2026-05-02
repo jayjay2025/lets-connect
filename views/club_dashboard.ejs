@@ -75,7 +75,10 @@
                                     <td style="font-size: 0.9em;"><%= p.content.substring(0, 40) %>...</td>
                                     <td><%= new Date(p.created_at).toLocaleDateString() %></td>
                                     <td>
-                                        <button onclick="editPost('<%= p.post_id %>', '<%= p.content %>')" style="background:#555; color:white; border:none; padding:5px 10px; border-radius: 3px; cursor:pointer;">Edit</button>
+                                        <button onclick="editPost(this)"
+                                                data-id="<%= p.post_id %>"
+                                                data-content="<%= p.content %>"
+                                                style="background:#555; color:white; border:none; padding:5px 10px; border-radius: 3px; cursor:pointer;">Edit</button>
                                         <button onclick="deletePost('<%= p.post_id %>')" class="delete-btn" style="background:#bf0028; color:white; border:none; padding:5px 10px; border-radius:3px; cursor:pointer;">Delete</button>
                                     </td>
                                 </tr>
@@ -159,7 +162,10 @@
                     }
                 }
 
-                async function editPost(postId, currentContent) {
+                async function editPost(btn) {
+                    const postId = btn.getAttribute('data-id');
+                    const currentContent = btn.getAttribute('data-content');
+                    
                     const newContent = prompt("Edit your updates:", currentContent);
 
                     if (newContent && newContent !== currentContent) {
